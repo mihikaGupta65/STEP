@@ -1,0 +1,96 @@
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+class LibraryMember {
+
+    private String membershipId;
+    private String name;
+    private boolean premiumMember;
+    private String securityAnswerHash;
+
+    public LibraryMember() {
+        this(null, null);
+    }
+
+    public LibraryMember(String name) {
+        this(null, name);
+    }
+
+    public LibraryMember(String membershipId, String name) {
+        this.name = name;
+        setMembershipId(membershipId);
+    }
+
+    public String getMembershipId() {
+        return membershipId;
+    }
+
+    public void setMembershipId(String id) {
+        if (membershipId == null && id != null && !id.trim().isEmpty()) {
+            membershipId = id;
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isPremiumMember() {
+        return premiumMember;
+    }
+
+    public void setPremiumMember(boolean premium) {
+        premiumMember = premium;
+    }
+
+    public void setSecurityAnswer(String answer) {
+        if (answer != null) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                byte[] hash = md.digest(answer.getBytes(StandardCharsets.UTF_8));
+
+                StringBuilder result = new StringBuilder();
+
+                for (byte b : hash) {
+                    result.append(String.format("%02x", b));
+                }
+
+                securityAnswerHash = result.toString();
+
+            } catch (Exception e) {
+                throw new IllegalStateException("Unable to process security answer");
+            }
+        }
+    }
+}
+
+public class Pb4 {
+
+    public static void main(String[] args) {
+
+        LibraryMember m1 = new LibraryMember("Priya Nair");
+        System.out.println("Membership ID: " + m1.getMembershipId());
+
+        LibraryMember m2 = new LibraryMember("LIB-8841", "Priya Nair");
+        System.out.println("Membership ID: " + m2.getMembershipId());
+
+        LibraryMember m3 = new LibraryMember();
+
+        m3.setMembershipId("LIB-8841");
+        m3.setMembershipId("FAKE-0000");
+
+        System.out.println("Membership ID: " + m3.getMembershipId());
+
+        m3.setName("Rahul");
+        m3.setPremiumMember(true);
+        m3.setSecurityAnswer("Blue");
+
+        System.out.println("Name: " + m3.getName());
+        System.out.println("Premium Member: " + m3.isPremiumMember());
+    }
+}
